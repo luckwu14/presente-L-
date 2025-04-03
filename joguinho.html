@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quebra-Cabeça do Amor</title>
+    <style>
+        body {
+            font-family: "Playfair Display", serif;
+            text-align: center;
+            background-color: #fdf8f5;
+            margin: 0;
+            padding: 0;
+            color: #3e2723;
+        }
+        canvas {
+            display: block;
+            background-color: white;
+            margin: 20px auto;
+            border: 3px solid #a52a2a;
+            border-radius: 10px;
+        }
+        .botao-reiniciar {
+            background-color: #a52a2a;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-family: "Playfair Display", serif;
+            box-shadow: 0 5px 15px rgba(165, 42, 42, 0.3);
+        }
+        .botao-reiniciar:hover {
+            background-color: #8b0000;
+            box-shadow: 0px 0px 20px rgba(165, 42, 42, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>Quebra-Cabeça do Amor 💕</h1>
+    <canvas id="puzzleCanvas" width="500" height="500"></canvas>
+    <br>
+    <button class="botao-reiniciar" onclick="embaralharPecas()">Embaralhar</button>
+    <script>
+        const canvas = document.getElementById("puzzleCanvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        img.src = "imagem_girada.jpg"; // Substituir pelo caminho correto da imagem
+
+        const rows = 3;
+        const cols = 3;
+        let peças = [];
+        let peçaSelecionada = null;
+
+        function inicializarPecas() {
+            const larguraPeça = canvas.width / cols;
+            const alturaPeça = canvas.height / rows;
+            peças = [];
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    peças.push({
+                        x: j * larguraPeça,
+                        y: i * alturaPeça,
+                        posX: j * larguraPeça,
+                        posY: i * alturaPeça
+                    });
+                }
+            }
+        }
+
+        function desenharPecas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const larguraPeça = canvas.width / cols;
+            const alturaPeça = canvas.height / rows;
+            peças.forEach(peça => {
+                ctx.drawImage(img, peça.posX, peça.posY, larguraPeça, alturaPeça, peça.x, peça.y, larguraPeça, alturaPeça);
+            });
+        }
+
+        function embaralharPecas() {
+            for (let i = peças.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [peças[i].x, peças[j].x] = [peças[j].x, peças[i].x];
+                [peças[i].y, peças[j].y] = [peças[j].y, peças[i].y];
+            }
+            desenharPecas();
+        }
+
+        canvas.addEventListener("click", (event) => {
+            const x = event.offsetX;
+            const y = event.offsetY;
+            const larguraPeça = canvas.width / cols;
+            const alturaPeça = canvas.height / rows;
+            const index = peças.findIndex(peça => x > peça.x && x < peça.x + larguraPeça && y > peça.y && y < peça.y + alturaPeça);
+            
+            if (peçaSelecionada === null) {
+                peçaSelecionada = index;
+            } else {
+                if (index !== -1 && peçaSelecionada !== index) {
+                    [peças[peçaSelecionada].x, peças[index].x] = [peças[index].x, peças[peçaSelecionada].x];
+                    [peças[peçaSelecionada].y, peças[index].y] = [peças[index].y, peças[peçaSelecionada].y];
+                    desenharPecas();
+                }
+                peçaSelecionada = null;
+            }
+        });
+
+        img.onload = function() {
+            inicializarPecas();
+            embaralharPecas();
+        };
+    </script>
+</body>
+</html>
